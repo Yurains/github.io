@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>刊登表單</title>
+    <style>
+        /* 保持原有樣式 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .form-container {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            width: 60%;
+            margin: auto;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #2a9df4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #1c7ed6;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <form id="listingForm">
+            <label for="type">型態</label>
+            <select id="type" name="type" required>
+                <option value="售">售</option>
+                <option value="徵">徵</option>
+            </select>
+
+            <label for="title">標題</label>
+            <input type="text" id="title" name="title" placeholder="輸入標題..." required>
+
+            <label for="brand">廠牌</label>
+            <select id="brand" name="brand" required>
+                <option value="DJI">DJI</option>
+                <option value="Canon">Canon</option>
+                <option value="Sony">Sony</option>
+                <option value="Nikon">Nikon</option>
+                <option value="Fujifilm">Fujifilm</option>
+                <option value="Sigma">Sigma</option>
+                <option value="Other">其他</option>
+            </select>
+
+            <label for="price">價格</label>
+            <input type="number" id="price" name="price" placeholder="輸入價格..." required>
+
+            <label for="city">交易縣市</label>
+            <select id="city" name="city" required>
+                <option value="台北市">台北市</option>
+                <option value="新北市">新北市</option>
+                <option value="桃園市">桃園市</option>
+                <option value="台中市">台中市</option>
+                <option value="台南市">台南市</option>
+                <option value="高雄市">高雄市</option>
+                <option value="基隆市">基隆市</option>
+                <option value="新竹市">新竹市</option>
+                <option value="新竹縣">新竹縣</option>
+                <option value="苗栗縣">苗栗縣</option>
+                <option value="彰化縣">彰化縣</option>
+                <option value="南投縣">南投縣</option>
+                <option value="雲林縣">雲林縣</option>
+                <option value="嘉義市">嘉義市</option>
+                <option value="嘉義縣">嘉義縣</option>
+                <option value="屏東縣">屏東縣</option>
+                <option value="宜蘭縣">宜蘭縣</option>
+                <option value="花蓮縣">花蓮縣</option>
+                <option value="台東縣">台東縣</option>
+                <option value="澎湖縣">澎湖縣</option>
+                <option value="金門縣">金門縣</option>
+                <option value="連江縣">連江縣</option>
+            </select>
+
+            <label for="username">用戶名稱</label>
+            <input type="text" id="username" name="username" placeholder="輸入您的名稱..." required>
+
+            <label for="description">物件描述</label>
+            <textarea id="description" name="description" rows="5" placeholder="輸入物件描述..." required></textarea>
+
+            <button type="submit">點擊刊登</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('listingForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // 防止表單默認提交行為
+
+            // 獲取表單數據
+            const type = document.getElementById('type').value;
+            const title = document.getElementById('title').value.trim();
+            const brand = document.getElementById('brand').value;
+            const price = document.getElementById('price').value.trim();
+            const city = document.getElementById('city').value;
+            const username = document.getElementById('username').value.trim();
+            const description = document.getElementById('description').value.trim();
+
+            // 驗證數據
+            if (!title || !price || !username || !description) {
+                alert('請填寫所有必填欄位。');
+                return;
+            }
+
+            // 創建一個新的列表項目
+            const newListing = {
+                type,
+                title,
+                brand,
+                price,
+                city,
+                username,
+                description,
+                date: new Date().toISOString().split('T')[0] // 取得當前日期
+            };
+
+            // 從 LocalStorage 中獲取現有的列表
+            let listings = JSON.parse(localStorage.getItem('listings')) || [];
+
+            // 將新的列表項目添加到列表中
+            listings.push(newListing);
+
+            // 將更新後的列表存回 LocalStorage
+            localStorage.setItem('listings', JSON.stringify(listings));
+
+            // 重定向到 index.html
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

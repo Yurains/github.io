@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DC-View V.87</title>
+    <style>
+        /* 保持原有樣式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            position: relative;
+        }
+        .sidebar {
+            width: 20%;
+            background-color: #f8f8f8;
+            padding: 15px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar h3 {
+            margin-top: 0;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar li {
+            margin: 8px 0;
+            cursor: pointer;
+            color: #333;
+        }
+        .sidebar li:hover {
+            color: #007BFF;
+            text-decoration: underline;
+        }
+        .content {
+            width: 80%;
+            padding: 20px;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .search-bar input, .search-bar select {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            flex: 1;
+        }
+        .search-bar button {
+            padding: 8px 16px;
+            background-color: #2a9df4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .search-bar button:hover {
+            background-color: #1c7ed6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .price {
+            color: red;
+            font-weight: bold;
+        }
+        .label {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: white;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+        .label-sell { background-color: #2a9df4; }
+        .label-wanted { background-color: #ff9800; }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+        .publish-button {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            background-color: #28a745;
+            color: #fff;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+        }
+        .publish-button:hover {
+            background-color: #218838;
+        }
+        .ad-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none; /* 初始隱藏廣告 */
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .ad-container img {
+            max-width: 300px;
+            max-height: 300px;
+            display: block;
+            margin: 0 auto;
+        }
+        .close-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            display: none; /* 初始隱藏關閉按鈕 */
+        }
+        .close-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h3>廠牌</h3>
+            <ul>
+                <li onclick="filterListings('')">全部廠牌</li>
+                <li onclick="filterListings('Canon')">Canon</li>
+                <li onclick="filterListings('Nikon')">Nikon</li>
+                <li onclick="filterListings('Sony')">Sony</li>
+                <li onclick="filterListings('Fujifilm')">Fujifilm</li>
+                <li onclick="filterListings('Olympus')">Olympus</li>
+                <li onclick="filterListings('Panasonic')">Panasonic</li>
+                <li onclick="filterListings('Pentax')">Pentax</li>
+                <li onclick="filterListings('Ricoh')">Ricoh</li>
+                <li onclick="filterListings('Leica')">Leica</li>
+                <li onclick="filterListings('Sigma')">Sigma</li>
+                <li onclick="filterListings('Contax')">Contax</li>
+                <li onclick="filterListings('其他廠牌')">其他廠牌</li>
+            </ul>
+        </div>
+        <a href="abc.html" class="publish-button">刊登</a>
+        <div class="content">
+            <div class="search-bar">
+                <input type="text" id="searchKeyword" placeholder="輸入關鍵字">
+                <select id="searchCity">
+                    <option value="">不限地區</option>
+                    <option value="台北市">台北市</option>
+                    <option value="新北市">新北市</option>
+                    <option value="桃園市">桃園市</option>
+                    <option value="台中市">台中市</option>
+                    <option value="台南市">台南市</option>
+                    <option value="高雄市">高雄市</option>
+                    <option value="基隆市">基隆市</option>
+                    <option value="新竹市">新竹市</option>
+                    <option value="新竹縣">新竹縣</option>
+                    <option value="苗栗縣">苗栗縣</option>
+                    <option value="彰化縣">彰化縣</option>
+                    <option value="南投縣">南投縣</option>
+                    <option value="雲林縣">雲林縣</option>
+                    <option value="嘉義市">嘉義市</option>
+                    <option value="嘉義縣">嘉義縣</option>
+                    <option value="屏東縣">屏東縣</option>
+                    <option value="宜蘭縣">宜蘭縣</option>
+                    <option value="花蓮縣">花蓮縣</option>
+                    <option value="台東縣">台東縣</option>
+                    <option value="澎湖縣">澎湖縣</option>
+                    <option value="金門縣">金門縣</option>
+                    <option value="連江縣">連江縣</option>
+                </select>
+                <button onclick="searchListings()">搜尋</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>操作</th>
+                        <th>廠牌</th>
+                        <th>品名</th>
+                        <th>價格</th>
+                        <th>發表</th>
+                        <th>刊登</th>
+                        <th>留言</th>
+                    </tr>
+                </thead>
+                <tbody id="listingTableBody">
+                    <!-- 動態插入列表 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="ad-container" id="adContainer">
+        <img id="adImage" src="" alt="廣告圖片">
+        <button class="close-btn" id="closeAd">關閉</button>
+    </div>
+    <script>
+        // 廣告相關邏輯
+        const images = ['img/1.png', 'img/2.png']; // 廣告圖片路徑
+        const adContainer = document.getElementById('adContainer');
+        const adImage = document.getElementById('adImage');
+        const closeAdButton = document.getElementById('closeAd');
+
+        // 顯示廣告
+        function showAd() {
+            const randomIndex = Math.floor(Math.random() * images.length);
+            adImage.src = images[randomIndex];
+            adContainer.style.display = 'block';
+            closeAdButton.style.display = 'none';
+
+            // 5 秒後顯示關閉按鈕
+            setTimeout(() => {
+                closeAdButton.style.display = 'inline-block';
+            }, 5000);
+        }
+
+        // 關閉廣告並安排下一次廣告
+        closeAdButton.addEventListener('click', () => {
+            adContainer.style.display = 'none';
+            scheduleNextAd(); // 安排下一次廣告
+        });
+
+        // 安排下一次廣告
+        function scheduleNextAd() {
+            const delay = Math.random() * (60000 - 15000) + 15000; // 隨機 15 秒到 1 分鐘
+            setTimeout(showAd, delay);
+        }
+
+        // 初始顯示廣告，5 秒後再安排隨機出現
+        setTimeout(() => {
+            showAd();
+            scheduleNextAd();
+        }, 5000);
+
+        // 刪除行邏輯
+        function deleteRow(button, listingIndex) {
+            // 從 LocalStorage 中刪除該列表項目
+            let listings = JSON.parse(localStorage.getItem('listings')) || [];
+            listings.splice(listingIndex, 1);
+            localStorage.setItem('listings', JSON.stringify(listings));
+
+            // 重新加載列表
+            loadListings(currentFilterBrand, currentSearchKeyword, currentSearchCity);
+        }
+
+        // 當前過濾和搜尋狀態
+        let currentFilterBrand = '';
+        let currentSearchKeyword = '';
+        let currentSearchCity = '';
+
+        // 加載列表
+        function loadListings(filterBrand = '', searchKeyword = '', searchCity = '') {
+            currentFilterBrand = filterBrand;
+            currentSearchKeyword = searchKeyword;
+            currentSearchCity = searchCity;
+
+            const listings = JSON.parse(localStorage.getItem('listings')) || [];
+            const tbody = document.getElementById('listingTableBody');
+            tbody.innerHTML = ''; // 清空現有內容
+
+            listings.forEach((listing, index) => {
+                // 過濾邏輯
+                if (filterBrand) {
+                    if (filterBrand === '其他廠牌') {
+                        const knownBrands = ['Canon', 'Nikon', 'Sony', 'Fujifilm', 'Olympus', 'Panasonic', 'Pentax', 'Ricoh', 'Leica', 'Sigma', 'Contax'];
+                        if (knownBrands.includes(listing.brand)) {
+                            return;
+                        }
+                    } else {
+                        if (listing.brand !== filterBrand) {
+                            return;
+                        }
+                    }
+                }
+
+                if (searchKeyword && !listing.title.includes(searchKeyword)) {
+                    return;
+                }
+
+                if (searchCity && listing.city !== searchCity) {
+                    return;
+                }
+
+                // 創建表格行
+                const tr = document.createElement('tr');
+
+                // 操作欄
+                const tdOperate = document.createElement('td');
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '刪';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.onclick = function() { deleteRow(this, index); };
+                tdOperate.appendChild(deleteBtn);
+                tr.appendChild(tdOperate);
+
+                // 廠牌
+                const tdBrand = document.createElement('td');
+                tdBrand.textContent = listing.brand;
+                tr.appendChild(tdBrand);
+
+                // 品名
+                const tdTitle = document.createElement('td');
+                const label = document.createElement('span');
+                label.className = 'label ' + (listing.type === '售' ? 'label-sell' : 'label-wanted');
+                label.textContent = listing.type;
+                tdTitle.appendChild(label);
+                const titleText = document.createTextNode(` [${listing.city}] ${listing.title}`);
+                tdTitle.appendChild(titleText);
+                tr.appendChild(tdTitle);
+
+                // 價格
+                const tdPrice = document.createElement('td');
+                tdPrice.className = 'price';
+                tdPrice.textContent = listing.price;
+                tr.appendChild(tdPrice);
+
+                // 發表
+                const tdUsername = document.createElement('td');
+                tdUsername.textContent = listing.username;
+                tr.appendChild(tdUsername);
+
+                // 刊登日期
+                const tdDate = document.createElement('td');
+                tdDate.textContent = listing.date;
+                tr.appendChild(tdDate);
+
+                // 留言
+                const tdComment = document.createElement('td');
+                tdComment.textContent = '—';
+                tr.appendChild(tdComment);
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 過濾廠牌
+        function filterListings(brand) {
+            const searchKeyword = document.getElementById('searchKeyword').value.trim();
+            const searchCity = document.getElementById('searchCity').value;
+            loadListings(brand, searchKeyword, searchCity);
+        }
+
+        // 搜尋功能
+        function searchListings() {
+            const searchKeyword = document.getElementById('searchKeyword').value.trim();
+            const searchCity = document.getElementById('searchCity').value;
+            loadListings(currentFilterBrand, searchKeyword, searchCity);
+        }
+
+        // 初始加載所有列表
+        window.onload = function() {
+            loadListings();
+        };
+    </script>
+</body>
+</html>
